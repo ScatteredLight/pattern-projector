@@ -1,6 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 import {
   addPattern,
+  canFullScreen,
   home,
   isFullScreen,
   makePattern,
@@ -99,11 +100,7 @@ test.describe("Calibration flow", () => {
     page,
   }) => {
     await openApp(page);
-    // Safari on iPhone has no full screen for web pages
-    test.skip(
-      !(await page.evaluate(() => document.fullscreenEnabled)),
-      "This browser has no full screen",
-    );
+    test.skip(!(await canFullScreen(page)), "This browser has no full screen");
     await home(page).getByRole("button", { name: "Calibrate" }).click();
     await expect.poll(() => isFullScreen(page)).toBe(true);
     await button(page, "Save calibration").click();
@@ -117,6 +114,7 @@ test.describe("Calibration flow", () => {
     // Calibrated in full screen with the window somewhere else on the screen
     await seedCalibration(page, { windowScreenLeft: 500 });
     await openShirt(page, testInfo.outputPath("Shirt.pdf"));
+    test.skip(!(await canFullScreen(page)), "This browser has no full screen");
     await expect(pdfPage(page)).toBeVisible();
     await page.waitForTimeout(2500);
     await expect(alert(page)).toHaveCount(0);
@@ -127,6 +125,7 @@ test.describe("Calibration flow", () => {
   }, testInfo) => {
     await seedCalibration(page);
     await openShirt(page, testInfo.outputPath("Shirt.pdf"));
+    test.skip(!(await canFullScreen(page)), "This browser has no full screen");
     await expect(pdfPage(page)).toBeVisible();
     await expect.poll(() => isFullScreen(page)).toBe(true);
 

@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
   addPattern,
+  expectFullScreen,
   home,
   isFullScreen,
   makePattern,
@@ -40,7 +41,7 @@ test.describe("Saved projects", () => {
       .getByRole("button", { name: /^Shirt/ })
       .click();
     await expect(home(page)).toBeHidden();
-    await expect.poll(() => isFullScreen(page)).toBe(true);
+    await expectFullScreen(page);
     await expect(page.getByTestId("calibration-guide")).toContainText(
       "Step 1 of 4",
     );
@@ -68,7 +69,7 @@ test.describe("Saved projects", () => {
       .getByRole("button", { name: /^Shirt/ })
       .click();
     await expect(pdfPage(page)).toBeVisible();
-    await expect.poll(() => isFullScreen(page)).toBe(true);
+    await expectFullScreen(page);
     await expect(page.getByTestId("calibration-guide")).toHaveCount(0);
     // No file browser anywhere while projecting
     await expect(page.locator('input[type="file"]')).toHaveCount(0);
@@ -96,7 +97,7 @@ test.describe("Saved projects", () => {
       .toEqual(["ShirtOpen now", "Pants"]);
     await page.getByRole("button", { name: /^Pants/ }).click();
     await expect.poll(() => patternTransform(page)).not.toBe(shirtTransform);
-    expect(await isFullScreen(page)).toBe(true);
+    await expectFullScreen(page);
 
     // The shirt comes back where it was left
     // Moving the mouse brings back the menu, which hides when idle

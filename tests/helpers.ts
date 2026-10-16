@@ -37,6 +37,8 @@ export async function seedCalibration(
   await page.addInitScript(
     ({ points, viewport, overrides }) => {
       if (localStorage.getItem("points") === null) {
+        // Safari on iPhone has no full screen, so calibration happens in the window there
+        const fullScreen = document.fullscreenEnabled === true;
         localStorage.setItem("points", JSON.stringify(points));
         localStorage.setItem(
           "calibrationContext",
@@ -49,10 +51,33 @@ export async function seedCalibration(
             devicePixelRatio: window.devicePixelRatio,
             clientScreenTop: 0,
             clientScreenLeft: 0,
-            fullScreen: true,
+            fullScreen,
             ...overrides,
           }),
         );
+        // Some browsers give full screen a different size from the window (Firefox uses its 1366 × 768 screen).
+        // Someone who calibrated in full screen recorded that size, so adopt it the first time full screen opens.
+        if (fullScreen && overrides.windowInnerWidth === undefined) {
+          const adoptFullScreenSize = () => {
+            if (document.fullscreenElement === null) return;
+            document.removeEventListener(
+              "fullscreenchange",
+              adoptFullScreenSize,
+            );
+            const saved = JSON.parse(
+              localStorage.getItem("calibrationContext") ?? "{}",
+            );
+            localStorage.setItem(
+              "calibrationContext",
+              JSON.stringify({
+                ...saved,
+                windowInnerWidth: window.innerWidth,
+                windowInnerHeight: window.innerHeight,
+              }),
+            );
+          };
+          document.addEventListener("fullscreenchange", adoptFullScreenSize);
+        }
       }
     },
     { points, viewport, overrides },
@@ -90,6 +115,20 @@ export async function addPattern(page: Page, path: string, name: string) {
 }
 
 export const home = (page: Page) => page.getByTestId("projects-home");
+// Safari on iPhone has no full screen for web pages
+export const canFullScreen = (page: Page) =>
+  page.evaluate(() => document.fullscreenEnabled === true);
+// Opening a pattern goes full screen wherever the browser allows it
+export async function expectFullScreen(page: Page) {
+  if (await canFullScreen(page)) {
+    await expect.poll(() => isFullScreen(page)).toBe(true);
+  }
+}
+export const windowSize = (page: Page) =>
+  page.evaluate(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }));
 export const isFullScreen = (page: Page) =>
   page.evaluate(() => document.fullscreenElement !== null);
 export const patternTransform = (page: Page) =>
