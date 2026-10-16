@@ -103,6 +103,10 @@ test.describe("Saved projects", () => {
     // Moving the mouse brings back the menu, which hides when idle
     await page.mouse.move(600, 400 + Math.random() * 10);
     await page.getByRole("button", { name: "Projects", exact: true }).click();
+    // Wait for the list to refresh, so the click doesn't land while it re-renders
+    await expect
+      .poll(() => projectNames(page))
+      .toEqual(["PantsOpen now", "Shirt"]);
     await page.getByRole("button", { name: /^Shirt/ }).click();
     await expect.poll(() => patternTransform(page)).toBe(shirtTransform);
 

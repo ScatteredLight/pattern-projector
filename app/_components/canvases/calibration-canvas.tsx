@@ -76,6 +76,9 @@ export default function CalibrationCanvas({
     points: Point[];
     corners: Set<number>;
   } | null>(null);
+  // The points after the latest move, for the end of the drag: releasing the pointer can come before React
+  // re-renders with the last move, and saving the rendered points then would undo that move
+  const draggedPoints = useRef<Point[] | null>(null);
 
   useEffect(() => {
     if (
@@ -276,6 +279,7 @@ export default function CalibrationCanvas({
           y: currentPoint.y + dy,
         };
       }
+      draggedPoints.current = newPoints;
       setDragPoint(p);
       dispatch({ type: "set", points: newPoints });
     }
@@ -284,7 +288,7 @@ export default function CalibrationCanvas({
   function handlePointerEnd(e: React.PointerEvent) {
     /* Nothing to do. This short circuit is required to prevent setting
      * the localStorage of the points to invalid values */
-    if (dragPoint === null) return;
+    if (dragStart.current === null) return;
 
     localStorage.setItem(
       "calibrationContext",
@@ -292,8 +296,9 @@ export default function CalibrationCanvas({
         getCalibrationContextUpdatedWithEvent(e, fullScreenHandle.active),
       ),
     );
-    dispatch({ type: "set", points });
+    dispatch({ type: "set", points: draggedPoints.current ?? points });
     dragStart.current = null;
+    draggedPoints.current = null;
     setDragPoint(null);
   }
 
