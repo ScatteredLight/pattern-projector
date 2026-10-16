@@ -64,9 +64,22 @@ export const seedFullScreenCalibration = (page: Page) => seedCalibration(page);
 export async function openApp(page: Page) {
   await page.setViewportSize(viewport);
   await page.goto("/en/calibrate");
+  await waitForApp(page);
+}
+
+// The home screen shows before React has attached its event handlers, and clicks made before then are lost.
+// Firefox and Safari take longer to get there, so wait for the handlers rather than for the network.
+export async function waitForApp(page: Page) {
   await expect(home(page)).toBeVisible();
-  // Wait for React to attach its event handlers
-  await page.waitForLoadState("networkidle");
+  await page.waitForFunction(() => {
+    const button = document.querySelector(
+      '[data-testid="projects-home"] button',
+    );
+    return (
+      button !== null &&
+      Object.keys(button).some((key) => key.startsWith("__reactProps$"))
+    );
+  });
 }
 
 export async function addPattern(page: Page, path: string, name: string) {

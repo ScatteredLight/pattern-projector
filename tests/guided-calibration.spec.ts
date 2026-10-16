@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { waitForApp } from "./helpers";
 import { placementFromPoints } from "@/_lib/guided-calibration";
 import { lensDisplayPoint } from "@/_lib/lens-correction";
 
@@ -23,9 +24,7 @@ async function open(page: Page, points: typeof savedPoints | null) {
     }, points);
   }
   await page.goto("/en/calibrate");
-  await expect(page.getByTestId("projects-home")).toBeVisible();
-  // Wait for React to attach its event handlers
-  await page.waitForLoadState("networkidle");
+  await waitForApp(page);
   // The app starts on the projects home screen
   await page
     .getByTestId("projects-home")
@@ -200,7 +199,7 @@ test.describe("Guided calibration", () => {
     await expect(guide(page)).toHaveCount(0);
 
     await page.reload();
-    await page.waitForLoadState("networkidle");
+    await waitForApp(page);
     await page
       .getByTestId("projects-home")
       .getByRole("button", { name: "Calibrate", exact: true })
@@ -236,7 +235,7 @@ test.describe("Guided calibration", () => {
 
     // The new place is remembered
     await page.reload();
-    await page.waitForLoadState("networkidle");
+    await waitForApp(page);
     await page
       .getByTestId("projects-home")
       .getByRole("button", { name: "Calibrate", exact: true })

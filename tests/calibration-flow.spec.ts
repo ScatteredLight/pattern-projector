@@ -99,6 +99,11 @@ test.describe("Calibration flow", () => {
     page,
   }) => {
     await openApp(page);
+    // Safari on iPhone has no full screen for web pages
+    test.skip(
+      !(await page.evaluate(() => document.fullscreenEnabled)),
+      "This browser has no full screen",
+    );
     await home(page).getByRole("button", { name: "Calibrate" }).click();
     await expect.poll(() => isFullScreen(page)).toBe(true);
     await button(page, "Save calibration").click();

@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { waitForApp } from "./helpers";
 import { lensSourcePoint } from "@/_lib/lens-correction";
 
 const viewport = { width: 1280, height: 720 };
@@ -27,9 +28,7 @@ async function openCalibration(page: Page, strength: number) {
     { points, strength },
   );
   await page.reload();
-  await expect(page.getByTestId("projects-home")).toBeVisible();
-  // Wait for React to attach its event handlers
-  await page.waitForLoadState("networkidle");
+  await waitForApp(page);
   // The app starts on the projects home screen
   await page
     .getByTestId("projects-home")
@@ -48,7 +47,7 @@ test.describe("Lens correction", () => {
     const input = page.locator("#lens_correction");
     await input.fill("4.5");
     await page.reload();
-    await page.waitForLoadState("networkidle");
+    await waitForApp(page);
     await page
       .getByTestId("projects-home")
       .getByRole("button", { name: "Calibrate", exact: true })
