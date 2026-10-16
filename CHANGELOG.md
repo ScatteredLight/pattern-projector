@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Input line length and angle using textboxes
+- Português (Brasil), Suomi, and 简体中文 translations
+- Opened file name shows in the stitch menu
+- Screenshot testing
+- Add vertical alignment option for stitching
+- Projects home screen: opened patterns are saved in the browser and reopen with their settings and position
+- Switch patterns from the Projects button without leaving full screen
+- Lens correction setting for projector lens distortion, in 0.25% steps
+- Guided calibration with a printable target
+- Save calibration and Cancel buttons; cancelling restores the previous calibration
+
+### Fixed
+
+- Menus will not hide when inputting text
+- Able to drag ends of lines on touch devices
+- Pressing C resets & recenters the pattern
+- App crashing from large width/height inputs by setting the limit to 1000
+- Bright instead of pale green lines for SVGs when the green theme is enabled
+
+### Changed
+
+- The app opens on the projects home screen, and opening a pattern goes full screen
+- Calibration happens in full screen; the calibration warning explains whether it was done in a window, at another size, or in another position, and can be put off with a reminder
+- Toolbars are laid out as back actions, tools and the main action, and adapt to the screen width
+- Restores each pattern's saved position again
+- Line measurement labels match the theme
+- Enabled measuring when magnified for precision measuring
+- Pressing an arrow button once will move the pattern by 1/8" or 2mm
+- Slow down speed of pattern movement with arrow keys
+
 ## [1.3.0] - 2025-06-25
 
 ### Added

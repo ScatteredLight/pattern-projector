@@ -15,9 +15,13 @@ import CustomRenderer from "@/_components/pdf-custom-renderer";
 import { getPageNumbers, getRowsColumns } from "@/_lib/get-page-numbers";
 import { PDF_TO_CSS_UNITS } from "@/_lib/pixels-per-inch";
 import { RenderContext } from "@/_hooks/use-render-context";
-import { useTransformerContext } from "@/_hooks/use-transform-context";
+import {
+  readSavedTransform,
+  useTransformerContext,
+} from "@/_hooks/use-transform-context";
 import {
   LineDirection,
+  VerticalAlignment,
   StitchSettings,
 } from "@/_lib/interfaces/stitch-settings";
 import { StitchSettingsAction } from "@/_reducers/stitchSettingsReducer";
@@ -110,7 +114,7 @@ export default function PdfViewer({
       width,
       height,
     });
-    if (pageCount === 1) {
+    if (pageCount === 1 && !(file && readSavedTransform(file.name))) {
       transformer.recenter(gridCenter, width, height);
     }
   }
@@ -186,6 +190,10 @@ export default function PdfViewer({
           marginRight: cssEdgeInsets.horizontal,
           marginBottom: cssEdgeInsets.vertical,
           filter: filter,
+          transform:
+            stitchSettings.verticalAlignment == VerticalAlignment.Top
+              ? `scaleY(1)`
+              : `scaleY(-1)`,
         }}
       >
         {pages.map((value, index) => {
@@ -199,6 +207,10 @@ export default function PdfViewer({
                   cssEdgeInsets.horizontal == 0 && cssEdgeInsets.vertical == 0
                     ? "normal"
                     : "darken",
+                transform:
+                  stitchSettings.verticalAlignment == VerticalAlignment.Top
+                    ? `scaleY(1)`
+                    : `scaleY(-1)`,
               }}
             >
               {value != 0 && (
