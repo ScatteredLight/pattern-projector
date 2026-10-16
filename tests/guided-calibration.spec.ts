@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { waitForApp, windowSize } from "./helpers";
+import { waitForApp, waitForFullScreenToSettle, windowSize } from "./helpers";
 import { placementFromPoints } from "@/_lib/guided-calibration";
 import { lensDisplayPoint } from "@/_lib/lens-correction";
 
@@ -32,6 +32,7 @@ async function open(page: Page, points: typeof savedPoints | null) {
     .click();
   await expect(page.getByTestId("projects-home")).toBeHidden();
   await expect(page.getByTestId("calibration-canvas")).toBeVisible();
+  await waitForFullScreenToSettle(page);
 }
 
 async function getPlacement(page: Page) {

@@ -118,6 +118,25 @@ export const home = (page: Page) => page.getByTestId("projects-home");
 // Safari on iPhone has no full screen for web pages
 export const canFullScreen = (page: Page) =>
   page.evaluate(() => document.fullscreenEnabled === true);
+// Full screen can change the window size (Firefox grows to its screen size), and the page animates to the new size.
+// Wait until it has finished, so drags and screenshots use the final layout.
+export async function waitForFullScreenToSettle(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const element = document.fullscreenElement;
+        if (element === null) return true;
+        const rect = element.getBoundingClientRect();
+        return (
+          rect.width === window.innerWidth && rect.height === window.innerHeight
+        );
+      }),
+    )
+    .toBe(true);
+  // Let any running transition finish drawing
+  await page.waitForTimeout(600);
+}
+
 // Opening a pattern goes full screen wherever the browser allows it
 export async function expectFullScreen(page: Page) {
   if (await canFullScreen(page)) {

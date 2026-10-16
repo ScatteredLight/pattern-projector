@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { waitForApp, windowSize } from "./helpers";
+import { waitForApp, waitForFullScreenToSettle, windowSize } from "./helpers";
 import { lensSourcePoint } from "@/_lib/lens-correction";
 
 const viewport = { width: 1280, height: 720 };
@@ -36,6 +36,7 @@ async function openCalibration(page: Page, strength: number) {
     .click();
   await expect(page.getByTestId("projects-home")).toBeHidden();
   await expect(page.getByTestId("calibration-canvas")).toBeVisible();
+  await waitForFullScreenToSettle(page);
 }
 
 // A strip along the bottom edge of the calibration grid, clear of the menus
